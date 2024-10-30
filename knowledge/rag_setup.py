@@ -1,79 +1,58 @@
-from langchain.llms import Ollama
-from langchain.embeddings import OllamaEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import DirectoryLoader
-from langchain.chains import RetrievalQA
+
+from typing import List, Dict
+import ollama
+
+import os
+
+from langchain.prompts import ChatPromptTemplate
 
 class UCExpertRAG:
     def __init__(self):
-        # Initialize Ollama with the Mistral model
-        self.llm = Ollama(model="mistral")
-        self.embeddings = OllamaEmbeddings(model="mistral")
-        self.vector_store = None
-        self.qa_chain = None
+        self.model = "mistral"
+        self.docs_path = os.path.join('knowledge', 'docs')
         
-    def initialize_knowledge_base(self):
-        """Initialize the knowledge base with medical documents"""
-        # Load medical documents from a directory
-        loader = DirectoryLoader('knowledge/docs/', glob="*.md")
-        documents = loader.load()
-        
-        # Split documents into chunks
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200
-        )
-        splits = text_splitter.split_documents(documents)
-        
-        # Create and persist the vector store
-        self.vector_store = Chroma.from_documents(
-            documents=splits,
-            embedding=self.embeddings,
-            persist_directory="knowledge/db"
-        )
-        
-        # Initialize the QA chain
-        self.qa_chain = RetrievalQA.from_chain_type(
-            llm=self.llm,
-            chain_type="stuff",
-            retriever=self.vector_store.as_retriever()
-        )
-    
-    def get_response(self, question: str, context: str = "") -> str:
-        """Get a response from the RAG system"""
-        if not self.qa_chain:
-            self.initialize_knowledge_base()
-        
-        # Create a medical-focused prompt
-        prompt = f"""
-        Context: {context}
-        Question: {question}
-        
-        Please provide accurate medical information based on the context and question.
-        Focus on Ulcerative Colitis related information and always remind the user
-        to consult healthcare professionals for medical advice.
-        """
-        
-        try:
-            return self.qa_chain.run(prompt)
-        except Exception as e:
-            return f"Error generating response: {str(e)}"
+        # Define the prompt template
+        template = """
+        You are a medical assistant for patients with ulcerative colitis. Answer the question based on the context below. Keep responses very brief (2-3 sentences).
+        If you can't answer the question, reply "I don't know".
 
-    def get_medication_analysis(self, medications: list, symptoms: list) -> str:
-        """Analyze medication effectiveness based on symptoms"""
-        prompt = f"""
-        Analyze these medications and symptoms:
-        Medications: {medications}
-        Recent Symptoms: {symptoms}
+        Context: {context}
+        User Information: {user_info}
+        Question: {question}
+
+        Guidelines:
+        1. Be clear and direct
+        2. Never provide medical advice
+        3. Focus on factual information
         
-        Please provide:
-        1. Potential correlations between medications and symptoms
-        2. Suggestions for discussion with healthcare provider
-        3. General observations about medication effectiveness
         """
-        
+        self.prompt = ChatPromptTemplate.from_template(template)
+
+    def get_response(self, question: str, user_info: str) -> str:
         try:
-            return self.llm.predict(prompt)
+            # Read knowledge base files
+            knowledge_base = ""
+            for filename in os.listdir(self.docs_path):
+                if filename.endswith('.md'):
+                    with open(os.path.join(self.docs_path, filename), 'r') as f:
+                        knowledge_base += f.read() + "\n\n"
+
+            # Format the prompt using the template
+            formatted_prompt = self.prompt.format(
+                context=knowledge_base,
+                user_info=user_info,
+                question=question
+            )
+
+            # Create the chain: prompt -> model
+            response = ollama.chat(model=self.model, messages=[{
+                'role': 'user',
+                'content': formatted_prompt
+            }])
+
+            # Clean and return the response
+            return ' '.join(response['message']['content'].split())
+
         except Exception as e:
-            return f"Error analyzing medications: {str(e)}" 
+            print(f"Error in get_response: {str(e)}")
+            return "I apologize, but I'm having trouble accessing my knowledge base. Please try again in a moment."

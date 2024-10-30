@@ -1,0 +1,2 @@
+{# Remove all newlines and unnecessary whitespace #}
+{% if message.is_bot %}<div class="chat-message bot-message"><div class="message-content">{{ message.content }}</div><div class="message-time">{{ message.created_at|time:"g:i a" }}</div></div>{% else %}<div class="chat-message user-message"><div class="message-content">{{ message.content }}</div><div class="message-time">{{ message.created_at|time:"g:i a" }}</div></div>{% endif %}

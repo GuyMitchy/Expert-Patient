@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    {% if user.is_authenticated %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Chat Card -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Chat with UC Expert</h2>
+                <p class="text-gray-600 mb-4">Get answers to your UC-related questions</p>
+                <a href="{% url 'chat:list' %}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Start Chat
+                </a>
+            </div>
+
+            <!-- Symptoms Card -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Symptom Tracker</h2>
+                <p class="text-gray-600 mb-4">Log and monitor your symptoms</p>
+                <a href="{% url 'symptoms:list' %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    Track Symptoms
+                </a>
+            </div>
+
+            <!-- Medications Card -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Medication Log</h2>
+                <p class="text-gray-600 mb-4">Track your medication schedule</p>
+                <a href="{% url 'medications:list' %}" class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                    Manage Medications
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-8">
+                Welcome to UC Expert
+            </h1>
+            
+            <p class="text-xl text-gray-600 mb-8">
+                Your personal Ulcerative Colitis management companion
+            </p>
+            
+            <div class="space-x-4">
+                <a href="{% url 'accounts:login' %}"
+                   class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                    Login
+                </a>
+                <a href="{% url 'accounts:register' %}"
+                   class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                    Register
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if user.is_authenticated %}
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Recent Symptoms</h2>
+            <!-- Coming soon -->
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Medications</h2>
+            <!-- Coming soon -->
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="text-blue-600 hover:underline">
+                        Log New Symptom
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="text-blue-600 hover:underline">
+                        Log Medication
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
