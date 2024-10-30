@@ -91,8 +91,11 @@ def send_message(request, conversation_id):
 
         # Try to get medications if they exist
         try:
-            if hasattr(request.user, 'current_medications'):
-                user_context += f"\nCurrent Medications:\n{request.user.current_medications}\n"
+            active_medications = request.user.medication_set.filter(active=True)
+            if active_medications:
+                user_context += "\nCurrent Medications:\n"
+                for med in active_medications:
+                    user_context += f"- {med.get_name_display()} ({med.dosage}, {med.get_frequency_display()})\n"
         except AttributeError:
             user_context += "\nNo medications recorded.\n"
 
