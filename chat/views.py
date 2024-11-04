@@ -68,14 +68,14 @@ def send_message(request, conversation_id):
     if not user_message:
         return HttpResponse('Message is required', status=400)
 
-    # Save user message
-    Message.objects.create(
-        conversation=conversation,
-        content=user_message,
-        is_bot=False
-    )
-
     try:
+        # Save user message first
+        user_message_obj = Message.objects.create(
+            conversation=conversation,
+            content=user_message,
+            is_bot=False
+        )
+
         # Initialize user context
         user_context = "User Context:\n"
         
@@ -85,7 +85,7 @@ def send_message(request, conversation_id):
             if recent_symptoms:
                 user_context += "\nRecent Symptoms:\n"
                 for symptom in recent_symptoms:
-                    user_context += f"- {symptom.description} (Severity: {symptom.severity})\n"
+                    user_context += f"- {symptom.date.strftime('%Y-%m-%d')}: {symptom.description} (Severity: {symptom.severity})\n"
         except AttributeError:
             user_context += "\nNo symptoms recorded.\n"
 
@@ -95,7 +95,7 @@ def send_message(request, conversation_id):
             if active_medications:
                 user_context += "\nCurrent Medications:\n"
                 for med in active_medications:
-                    user_context += f"- {med.get_name_display()} ({med.dosage}, {med.get_frequency_display()})\n"
+                    user_context += f"- Started {med.start_date.strftime('%Y-%m-%d')}: {med.get_name_display()} ({med.dosage}, {med.get_frequency_display()})\n"
         except AttributeError:
             user_context += "\nNo medications recorded.\n"
 
@@ -115,8 +115,11 @@ def send_message(request, conversation_id):
             is_bot=True
         )
 
-        # Return just the rendered HTML
-        return render(request, 'chat/message.html', {'message': bot_message})
+        # Render both messages
+        messages_html = render_to_string('chat/message.html', {'message': user_message_obj})
+        messages_html += render_to_string('chat/message.html', {'message': bot_message})
+        
+        return HttpResponse(messages_html)
 
     except Exception as e:
         print(f"Error in send_message: {str(e)}")
