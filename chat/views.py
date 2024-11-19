@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from .models import Conversation, Message
 from knowledge.rag_setup import UCExpertRAG
 
@@ -20,29 +21,25 @@ class ConversationListView(LoginRequiredMixin, ListView):
 
 class ConversationCreateView(LoginRequiredMixin, CreateView):
     model = Conversation
-    template_name = 'chat/new.html'
-    fields = []  # No fields needed as we'll just create an empty conversation
-
+    template_name = 'chat/new_conversation.html'
+    fields = ['title']
+    
+    def get_success_url(self):
+        return reverse_lazy('chat:detail', kwargs={'pk': self.object.pk})
+    
     def form_valid(self, form):
+        # Set the user before saving
         form.instance.user = self.request.user
-        form.instance.title = "New Conversation"  # Default title
         response = super().form_valid(form)
         
-        # Add initial bot message
+        # Create welcome message
         Message.objects.create(
             conversation=self.object,
-            content=(
-                "Hello! I'm your UC Expert assistant. While I can provide information "
-                "about Ulcerative Colitis, please remember that I'm not a substitute "
-                "for professional medical advice. How can I help you today?"
-            ),
+            content="Hello! I'm your UC Expert assistant. I can help answer questions about Ulcerative Colitis, your symptoms, and medications. What would you like to know?",
             is_bot=True
         )
         
         return response
-
-    def get_success_url(self):
-        return self.object.get_absolute_url()
 
 class ConversationDetailView(LoginRequiredMixin, DetailView):
     model = Conversation
