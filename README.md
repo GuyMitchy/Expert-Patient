@@ -12,7 +12,7 @@ This is currently a prototype application developed to:
 
 The insights and learning from this prototype will inform the development of a production-ready application with enhanced features and optimized performance.
 
-![Responsive Mockup](ucexpert/static/ucexpert/img/responsive-mockup.png)
+![Responsive Mockup](/static/images/responsive-mockup.png)
 
 ## Table of Contents
 1. [UX/UI](#uxui)
@@ -82,8 +82,8 @@ Key user flows:
 - AI-powered schedule management
 
 
-![Medication Management](ucexpert/static/ucexpert/img/medication-management.png)
-![Selection of current UC medication](ucexpert/static/ucexpert/img/med-selection.png)
+![Medication Management](./static/images/medication-management.png) 
+![Selection of current UC medication](./static/images/med-selection.png)
 
 
 #### Symptom Tracking
@@ -92,7 +92,7 @@ Key user flows:
 - Detailed symptom descriptions
 - Historical trend analysis
 
-![Symptom Tracking](ucexpert/static/ucexpert/img/symptom-tracking.png)
+![Symptom Tracking](./static/images/symptom-tracking.png)
 
 #### AI-Powered Chat
 - Context-aware responses using RAG
@@ -102,7 +102,7 @@ Key user flows:
 - Persistent chat sessions across user sessions
 - Conversation history tracking for context maintenance
 
-![AI-Powered Chat](ucexpert/static/ucexpert/img/ai-chat.png)
+![AI-Powered Chat](./static/images/ai-chat.png)
 
 #### Knowledge Management
 - Vector-based medical knowledge storage
@@ -114,8 +114,6 @@ Key user flows:
 ### Features Left to Implement
 - Diet tracking integration
 - Medication reminders
-- Wearable device connectivity
-- Telemedicine features
 - Advanced analytics dashboard
 
 ## Technical Stack
@@ -183,6 +181,9 @@ Key user flows:
 - ChromaDB documentation
 - Django documentation
 - HTMX documentation
+- Cursor AI
+- Ollama documentation
+- Claude AI
 
 ### Content
 - Medical information sourced from [sources to be added]
